@@ -1,1 +1,8 @@
+1). Check live telemetry upload.
+
+while ($true) {
+    Clear-Host
+    Get-Content "C:\ProgramData\SGFortress\telemetry-status.txt"
+    Start-Sleep -Seconds 30
+}
 
