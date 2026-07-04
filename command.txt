@@ -19,17 +19,26 @@ Copy-Item -Force "C:\ProgramData\SGFortress\monitoring.db" "$env:USERPROFILE\Des
 
 4) to decrypt data
 (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Cryptography' -Name MachineGuid).MachineGuid
+Write-Host (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Cryptography' -Name MachineGuid).MachineGuid
 
 5) to check log txt files 
 Get-Content "C:\ProgramData\SGFortress\stream-status.txt"
 Get-Content "C:\ProgramData\SGFortress\screenshot-status.txt"
 Get-Content "C:\ProgramData\SGFortress\telemetry-status.txt"
 
+6) all log files at once
+"telemetry-status.txt", "stream-status.txt", "screenshot-status.txt" | ForEach-Object {
+    Write-Host "===== $_ =====" -ForegroundColor Cyan
+    Get-Content "C:\ProgramData\SGFortress\$_" -ErrorAction SilentlyContinue
+    Write-Host ""
+}
 
 
 
 
-Write-Host (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Cryptography' -Name MachineGuid).MachineGuid
+
+
+
 
 
 
