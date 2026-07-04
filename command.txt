@@ -12,3 +12,8 @@ while ($true) {
 
 Get-Item -Force "C:\ProgramData\SGFortress\monitoring.db" | Select-Object Name, CreationTime, LastWriteTime, Length
 
+
+3) to copy monitoring.db
+Copy-Item -Force "C:\ProgramData\SGFortress\monitoring.db" "$env:USERPROFILE\Desktop\monitoring-employee-copy.db"
+
+
