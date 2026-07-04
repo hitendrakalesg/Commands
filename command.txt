@@ -19,6 +19,8 @@ Copy-Item -Force "C:\ProgramData\SGFortress\monitoring.db" "$env:USERPROFILE\Des
 
 4) to decrypt data
 (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Cryptography' -Name MachineGuid).MachineGuid
+Write-Host (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Cryptography' -Name MachineGuid).MachineGuid
+
 
 
 
