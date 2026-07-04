@@ -6,3 +6,9 @@ while ($true) {
     Start-Sleep -Seconds 30
 }
 
+
+
+2) to check monitoring DB Attributes.
+
+Get-Item -Force "C:\ProgramData\SGFortress\monitoring.db" | Select-Object Name, CreationTime, LastWriteTime, Length
+
