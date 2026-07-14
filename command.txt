@@ -27,7 +27,7 @@ Get-Content "C:\ProgramData\SGFortress\screenshot-status.txt"
 Get-Content "C:\ProgramData\SGFortress\telemetry-status.txt"
 
 6) all log files at once
-"telemetry-status.txt", "stream-status.txt", "screenshot-status.txt" | ForEach-Object {
+"telemetry-status.txt", "stream-status.txt", "screenshot-status.txt", "activity-status.txt" | ForEach-Object {
     Write-Host "===== $_ =====" -ForegroundColor Cyan
     Get-Content "C:\ProgramData\SGFortress\$_" -ErrorAction SilentlyContinue
     Write-Host ""
