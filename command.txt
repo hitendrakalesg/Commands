@@ -34,6 +34,29 @@ Get-Content "C:\ProgramData\SGFortress\telemetry-status.txt"
 }
 
 
+7) for getting logs.
+$out = "C:\sgfortress-diag"; $dd = "C:\ProgramData\SGFortress"
+New-Item -ItemType Directory -Force -Path $out | Out-Null
+
+# 1) Processes — is the --screenshots-only worker running?
+Get-CimInstance Win32_Process -Filter "Name like '%SGFortress%'" |
+  Select-Object ProcessId,Name,CommandLine | Format-List | Out-File "$out\processes.txt"
+
+# 2) Scheduled tasks — present? enabled? how many triggers? last result?
+Get-ScheduledTask -TaskName SGFortressAgentInteractive -EA SilentlyContinue | Get-ScheduledTaskInfo | Out-File "$out\tasks.txt"
+(Get-ScheduledTask -TaskName SGFortressAgentInteractive -EA SilentlyContinue).Triggers | Out-File "$out\tasks.txt" -Append
+Get-ScheduledTask -TaskName SGFortressAgent -EA SilentlyContinue | Get-ScheduledTaskInfo | Out-File "$out\tasks.txt" -Append
+
+# 3) Status files + config + MachineGuid + logs
+Copy-Item "$dd\screenshot-status.txt","$dd\stream-status.txt","$dd\activity-status.txt","$dd\telemetry-status.txt","$dd\agent.properties" $out -EA SilentlyContinue
+(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Cryptography").MachineGuid | Out-File "$out\machineguid.txt"
+Copy-Item "$dd\logs\agent.*.log" $out -EA SilentlyContinue
+
+Compress-Archive -Path "$out\*" -DestinationPath "C:\sgfortress-diag.zip" -Force
+Write-Host "Done -> C:\sgfortress-diag.zip"
+
+
+
 
 
 
