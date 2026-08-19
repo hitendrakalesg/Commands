@@ -113,6 +113,33 @@ Write-Host 'SGFortress agent force-removed.'
 
 
 
+1. Build the new exe
+Same one-block sequence as before — run in an elevated PowerShell on your dev machine:
+
+
+$ErrorActionPreference = 'Stop'
+Set-Location "c:\Hiten\Main Projects\Live Agent\live_agent"
+$iscc  = "C:\Users\HP\AppData\Local\Programs\Inno Setup 6\ISCC.exe"
+$tasks = 'SGFortressAgent','SGFortressAgentInteractive','SGFortressAgentWatchdog'
+try {
+    foreach ($t in $tasks) {
+        Stop-ScheduledTask    -TaskName $t -ErrorAction SilentlyContinue
+        Disable-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue
+    }
+    Get-Process SGFortress-live,ffmpeg -ErrorAction SilentlyContinue | Stop-Process -Force
+    Remove-Item ".\dist\SGFortress-live" -Recurse -Force -ErrorAction SilentlyContinue
+    .\packaging\build-installer.ps1
+    & $iscc ".\packaging\inno\SGFortressAgent.iss"
+    if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+    Write-Host "`n===== verify-build =====" -ForegroundColor Cyan
+    .\packaging\verify-build.ps1
+}
+finally {
+    foreach ($t in $tasks) { Enable-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue }
+}
+
+
+
 
 
 
