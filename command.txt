@@ -61,6 +61,61 @@ Write-Host "Done -> C:\sgfortress-diag.zip"
 
 
 
+2. Force-uninstall (no product key; needs local admin)
+Option A — quick, if the install is intact. The agent ships its own teardown script (no key prompt). Run elevated:
+
+
+& "C:\Program Files\SGFortress\app\support\unregister-startup-task.ps1"
+Remove-Item "C:\Program Files\SGFortress","C:\ProgramData\SGFortress" -Recurse -Force
+Option B — self-contained, works on any machine even if the install is broken. Paste this whole block into an elevated PowerShell on the target machine:
+
+
+$ErrorActionPreference = 'SilentlyContinue'
+
+# 1. Stop + delete all three task families (schtasks /F handles the ACL-protected SYSTEM task)
+Get-ScheduledTask -TaskName 'SGFortressAgentInteractive*' | ForEach-Object {
+    schtasks /End /TN $_.TaskName 2>$null; schtasks /Delete /TN $_.TaskName /F 2>$null
+}
+foreach ($t in 'SGFortressAgent','SGFortressAgentWatchdog') {
+    schtasks /End /TN $t 2>$null; schtasks /Delete /TN $t /F 2>$null
+}
+
+# 2. Kill the agent's processes (only its own ffmpeg, matched by path)
+Get-Process SGFortress-live,SGFortressValidator,SGFortress-ServerScreenshot | Stop-Process -Force
+Get-CimInstance Win32_Process -Filter "Name='ffmpeg.exe'" |
+    Where-Object { $_.ExecutablePath -like '*SGFortress*' -or $_.CommandLine -like '*SGFortress*' } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+Get-CimInstance Win32_Process |
+    Where-Object { $_.Name -in 'powershell.exe','pwsh.exe' -and $_.CommandLine -match 'launch-agent\.ps1|agent-watchdog\.ps1' } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+Start-Sleep -Seconds 2
+
+# 3. Withdraw the Windows Defender exclusions the installer added
+if (Get-Command Remove-MpPreference -ErrorAction SilentlyContinue) {
+    Remove-MpPreference -ExclusionPath 'C:\Program Files\SGFortress'
+    foreach ($p in 'C:\Program Files\SGFortress\SGFortress-live.exe',
+                   'C:\Program Files\SGFortress\SGFortress-ServerScreenshot.exe',
+                   'C:\Program Files\SGFortress\SGFortressAgent.exe',
+                   'C:\Program Files\SGFortress\app\tools\ffmpeg.exe',
+                   'SGFortress-live.exe','SGFortress-ServerScreenshot.exe','SGFortressAgent.exe','ffmpeg.exe') {
+        Remove-MpPreference -ExclusionProcess $p
+    }
+}
+
+# 4. Delete program files + ALL data (license, DB, tokens, logs)
+Remove-Item 'C:\Program Files\SGFortress','C:\ProgramData\SGFortress' -Recurse -Force
+
+# 5. Remove the Add/Remove Programs entry
+Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall' |
+    Where-Object { (Get-ItemProperty $_.PSPath).DisplayName -like '*SGFortress*' } | Remove-Item -Recurse -Force
+
+Write-Host 'SGFortress agent force-removed.'
+
+
+
+
+
+
 
 
 
