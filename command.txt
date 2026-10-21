@@ -157,6 +157,12 @@ finally {
 
 
 
+icacls "C:\ProgramData\SGFortress" /inheritance:e /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-32-545:(OI)(CI)RX" /t /c /q
+icacls "C:\ProgramData\SGFortress\work" /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-32-545:(OI)(CI)M" /t /c /q
+icacls "C:\ProgramData\SGFortress\logs" /grant:r "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F" "*S-1-5-32-545:(OI)(CI)M" /t /c /q
+
+
+
 
 
 
