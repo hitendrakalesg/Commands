@@ -165,6 +165,17 @@ icacls "C:\ProgramData\SGFortress\device.properties"
 
 
 
+Get-ScheduledTask -TaskName "SGFortress*" | Format-Table TaskName, State
+Get-ScheduledTask -TaskName "SGFortress*" | Enable-ScheduledTask
+Start-ScheduledTask -TaskName "SGFortressAgent"
+Start-ScheduledTask -TaskName "SGFortressAgentInteractive_HITEN-SG_HP"
+
+
+Get-Process SGFortress-live -ErrorAction SilentlyContinue
+
+
+
+
 
 
 
